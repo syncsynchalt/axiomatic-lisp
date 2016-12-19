@@ -7,24 +7,24 @@ expr *execute(expr *e)
 {
     if (!e->left || !e->left->atom)
         return e;
-    expr *cmd = e->left;
-    expr *args = e->right;
+    expr *cmd = car(e);
+    expr *args = cdr(e);
     const char *label = atom_names[cmd->atom];
     if (strcasecmp(label, "car") == 0)
-        return axiom_car(args->left);
+        return car(args->left);
     if (strcasecmp(label, "cdr") == 0)
-        return axiom_cdr(args->left);
+        return cdr(args->left);
     if (strcasecmp(label, "atom") == 0)
-        return axiom_atom(args->left);
+        return atom(args->left);
     if (strcasecmp(label, "eq") == 0)
-        return axiom_eq(args);
+        return eq(args);
     if (strcasecmp(label, "cons") == 0)
-        return axiom_cons(args->left, args->right->left);
+        return cons(car(args), car(cdr(args)));
     if (strcasecmp(label, "add") == 0)
-        return builtin_add(args);
+        return add(args);
     if (strcasecmp(label, "sub") == 0)
-        return builtin_sub(args);
+        return sub(args);
     if (strcasecmp(label, "def") == 0)
-        return builtin_def(args);
+        return def(args);
     return e;
 }

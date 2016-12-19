@@ -13,25 +13,19 @@ S-Expressions are implemented, with the following "axioms" from the McCarthy pap
 * CONS: cons a (b) -> (a b)
 * EQ: eq a b -> T if a and b are the same atom, F if a and b are different atoms, else NIL
 
-In addition, the following to make a useful environment:
-
-* DEF: def (x, y, ...) (S-Expression using x, y, ...)
-
-And the following to build math capabilities:
+The following to build math capabilities:
 
 * ADD: add 1 2 -> 3
 * SUB: sub 3 2 -> 1
 
+And, the ability to define functions:
+
+* DEF: def (x, y, ...) (S-Expression using x, y, ...)
+
 To run,
 
-    ./axiom {source1.lisp, source2.lisp, ...} {-- arg1, arg2, ...}
-
-The command line arguments following "--" are in ARGS.
+    ./axiom {source1.lisp, source2.lisp, ...}
 
 Atoms are instantiated on first use.  Case is ignored.
-
-The following are implemented using the axioms, using the definition from McCarthy where applicable:
-
-* ... TBD
 
 Garbage collection is not implemented.

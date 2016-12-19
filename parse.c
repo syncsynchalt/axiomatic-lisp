@@ -24,7 +24,7 @@ expr *parse(FILE *f, int level)
             if (e->atom == nila->atom) {
                 e = tip = next;
             } else {
-                tip->right = axiom_cons(next, nila);
+                tip->right = cons(next, nila);
                 tip = tip->right;
             }
             break;
@@ -42,9 +42,9 @@ expr *parse(FILE *f, int level)
             ungetc(c, f);
             next = parse_read_atom(f);
             if (e->atom == nila->atom) {
-                e = tip = axiom_cons(next, nila);
+                e = tip = cons(next, nila);
             } else {
-                tip->right = axiom_cons(next, nila);
+                tip->right = cons(next, nila);
                 tip = tip->right;
             }
             break;
