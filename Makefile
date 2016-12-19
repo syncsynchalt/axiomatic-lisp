@@ -1,11 +1,8 @@
 SRC = $(wildcard *.c)
 OBJ = $(patsubst %.c, %.o, $(SRC))
-CFLAGS = -g -Wall -Wno-unused-function
+CFLAGS = -g -std=c99 -Wall -D_BSD_SOURCE
 
 all: axiom
-
-#.c.o:
-#	$(CC) $(CFLAGS) - $^ -o $@
 
 axiom: $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^

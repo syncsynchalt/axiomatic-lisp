@@ -3,6 +3,7 @@
 #include "parse.h"
 #include "axiom.h"
 #include "builtins.h"
+#include "execute.h"
 
 static void parse_print_expr(expr *e, int last_was_atom);
 static expr *parse_read_atom(FILE *f);
