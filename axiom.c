@@ -30,6 +30,7 @@ expr *find_atom(const char *label)
     if (label[strspn(label, "0123456789")] == '\0') {
         expr *e = calloc(sizeof *e, 1);
         e->atom = ATOM_NUMERIC;
+        e->left = e->right = find_atom("NIL");
         e->numval = atoi(label);
         return e;
     }
@@ -47,5 +48,6 @@ expr *find_atom(const char *label)
         atom_names[i][ii] = toupper(atom_names[i][ii]);
     atom_exprs[i] = calloc(sizeof(expr), 1);
     atom_exprs[i]->atom = i;
-    return atom_exprs[i++];
+    atom_exprs[i]->left = atom_exprs[i]->right = find_atom("NIL");
+    return atom_exprs[i];
 }

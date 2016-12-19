@@ -28,6 +28,7 @@ expr *parse(FILE *f, int level)
             }
             break;
         case ')':
+            e = execute(e);
             if (level == 1) {
                 parse_print_expr(e, 0);
                 printf("\n");
