@@ -12,15 +12,11 @@ expr *atom(expr *e)
 
 expr *car(expr *e)
 {
-    if (e->atom || !e->left)
-        return find_atom("NIL");
     return e->left;
 }
 
 expr *cdr(expr *e)
 {
-    if (e->atom)
-        return find_atom("NIL");
     return e->right;
 }
 
@@ -88,11 +84,7 @@ expr *def(expr *e)
 
 static expr *def_bind(expr *args, expr *func)
 {
-    if (func->left) {
-        def_bind(args, func->left);
-    } else if (func->right) {
-        def_bind(args, func->right);
-    } else if (func->atom) {
+    if (func->atom) {
         int index = 0;
         for (expr *l = args; l->atom == 0; l = args->right, index++) {
             if (l->left->atom == func->atom) {
@@ -100,6 +92,9 @@ static expr *def_bind(expr *args, expr *func)
                 func->bound = index;
             }
         }
+    } else {
+        def_bind(args, car(func));
+        def_bind(args, cdr(func));
     }
     return func;
 }

@@ -87,11 +87,8 @@ static void parse_print_expr(expr *e, int last_was_atom)
         printf("%s", atom_names[e->atom]);
     } else {
         printf("(");
-        for (int i = 0;; i++) {
-            parse_print_expr(e->left, i);
-            if (e->right->atom == find_atom("NIL")->atom)
-                break;
-            e = e->right;
+        for (int i = 0; e->atom != find_atom("NIL")->atom; i++, e = cdr(e)) {
+            parse_print_expr(car(e), i);
         }
         printf(")");
     }
