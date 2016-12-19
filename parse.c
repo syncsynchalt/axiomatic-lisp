@@ -81,7 +81,9 @@ static void parse_print_expr(expr *e, int last_was_atom)
 {
     if (last_was_atom)
         printf(" ");
-    if (e->atom) {
+    if (e->atom == ATOM_NUMERIC) {
+        printf("%d", e->numval);
+    } else if (e->atom) {
         printf("%s", atom_names[e->atom]);
     } else {
         printf("(");

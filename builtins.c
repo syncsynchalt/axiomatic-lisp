@@ -34,9 +34,11 @@ expr *axiom_cons(expr *a, expr *b)
 
 expr *axiom_eq(expr *e)
 {
-    if (!e->left->atom || !e->right->atom)
+    expr *a = axiom_car(e);
+    expr *b = axiom_car(axiom_cdr(e));
+    if (!a->atom || !b->atom)
         return find_atom("NIL");
-    if (e->left->atom == e->right->atom && (e->left->numval == e->right->numval))
+    if (a->atom == b->atom && (a->numval == b->numval))
         return find_atom("T");
     else
         return find_atom("F");
@@ -44,22 +46,26 @@ expr *axiom_eq(expr *e)
 
 expr *builtin_add(expr *e)
 {
-    if (e->atom || e->left->atom != ATOM_NUMERIC || e->right->atom != ATOM_NUMERIC)
+    expr *a = axiom_car(e);
+    expr *b = axiom_car(axiom_cdr(e));
+    if (a->atom != ATOM_NUMERIC || b->atom != ATOM_NUMERIC)
         return find_atom("NIL");
     expr *result = calloc(sizeof *result, 1);
     result->atom = ATOM_NUMERIC;
-    result->numval = e->left->numval + e->right->numval;
+    result->numval = a->numval + b->numval;
     result->left = result->right = find_atom("NIL");
     return result;
 }
 
 expr *builtin_sub(expr *e)
 {
-    if (e->atom || e->left->atom != ATOM_NUMERIC || e->right->atom != ATOM_NUMERIC)
+    expr *a = axiom_car(e);
+    expr *b = axiom_car(axiom_cdr(e));
+    if (a->atom != ATOM_NUMERIC || b->atom != ATOM_NUMERIC)
         return find_atom("NIL");
     expr *result = calloc(sizeof *result, 1);
     result->atom = ATOM_NUMERIC;
-    result->numval = e->left->numval - e->right->numval;
+    result->numval = a->numval - b->numval;
     result->left = result->right = find_atom("NIL");
     return result;
 }
