@@ -1,1 +1,2 @@
-(a b (c d e ()))
+(car (a b c)) (expect a)
+(cdr (a b c)) (expect (b c))
