@@ -1,6 +1,4 @@
-#include "fancy.h"
 #include "axiom.h"
-#include "builtins.h"
 #include <stdio.h>
 
 static void fancy_print_indented(expr *e, int indent);
@@ -12,29 +10,27 @@ void fancy_print(expr *e)
 
 static void fancy_print_indented(expr *e, int indent)
 {
-    printf("%*s", indent, "");
+    fprintf(stderr, "%*s", indent, "");
     if (e->atom) {
-        printf("%s\n", atom_names[e->atom]);
+        fprintf(stderr, "%s\n", atom_names[e->atom]);
         return;
     }
     expr *l;
     for (l = e; !l->atom; l = cdr(l)) {
-        printf("+---");
+        fprintf(stderr, "+---");
     }
-    printf("NIL\n");
-    printf("%*s", indent, "");
+    fprintf(stderr, "NIL\n");
+    fprintf(stderr, "%*s", indent, "");
     for (l = e; !l->atom; l = cdr(l)) {
-        if (car(l)->atom) {
-            if (l->numval) {
-                printf("%-3.3d ", l->numval);
-            } else {
-                printf("%-3.3s ", atom_names[car(l)->atom]);
-            }
+        if (car(l)->atom == ATOM_NUMERIC) {
+            fprintf(stderr, "%-3.3d ", l->numval);
+        } else if (car(l)->atom) {
+            fprintf(stderr, "%-3.3s ", atom_names[car(l)->atom]);
         } else {
-            printf("%3s ", "");
+            fprintf(stderr, "%3s ", "");
         }
     }
-    printf("\n");
+    fprintf(stderr, "\n");
     int i;
     for (l = e, i = indent; !l->atom; l = cdr(l), i += 4) {
         if (!car(l)->atom) {
