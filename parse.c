@@ -22,8 +22,8 @@ expr *parse(FILE *f, int level)
         switch (c) {
         case '(':
             next = parse(f, level+1);
-            if (e->atom == nila->atom) {
-                e = tip = next;
+            if (tip->atom == nila->atom) {
+                e = tip = cons(next, nila);
             } else {
                 tip->right = cons(next, nila);
                 tip = tip->right;
@@ -51,6 +51,10 @@ expr *parse(FILE *f, int level)
             } else {
                 tip->right = cons(next, nila);
                 tip = tip->right;
+            }
+            if (level == 0) {
+                parse_print_expr(e, 0);
+                printf("\n");
             }
             break;
         }

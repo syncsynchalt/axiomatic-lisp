@@ -22,5 +22,7 @@ extern expr *find_atom(const char *label);
 
 #include <stdio.h>
 #define die(...) do { fprintf (stderr, __VA_ARGS__); exit(1); } while (0)
+// remove for golfing
+#define deb(f, ...) do { fprintf (stderr, f "\n", ##__VA_ARGS__); } while (0)
 
 #endif
