@@ -6,11 +6,11 @@ extern expr *atom(expr *e);
 extern expr *car(expr *e);
 extern expr *cdr(expr *e);
 extern expr *cons(expr *a, expr *b);
-extern expr *eq(expr *e);
+extern expr *eq(expr *a, expr *b);
 
 // from me
-extern expr *add(expr *e);
-extern expr *sub(expr *e);
+extern expr *add(expr *a, expr *b);
+extern expr *sub(expr *a, expr *b);
 extern expr *def(expr *e);
 
 #endif

@@ -1,5 +1,4 @@
 #include "axiom.h"
-#include "builtins.h"
 #include <stdlib.h>
 
 expr *atom(expr *e)
@@ -28,10 +27,8 @@ expr *cons(expr *a, expr *b)
     return e;
 }
 
-expr *eq(expr *e)
+expr *eq(expr *a, expr *b)
 {
-    expr *a = car(e);
-    expr *b = car(cdr(e));
     if (!a->atom || !b->atom)
         return find_atom("NIL");
     if (a->atom == b->atom && (a->numval == b->numval))
@@ -40,10 +37,8 @@ expr *eq(expr *e)
         return find_atom("F");
 }
 
-expr *add(expr *e)
+expr *add(expr *a, expr *b)
 {
-    expr *a = car(e);
-    expr *b = car(cdr(e));
     if (a->atom != ATOM_NUMERIC || b->atom != ATOM_NUMERIC)
         return find_atom("NIL");
     expr *result = calloc(sizeof *result, 1);
@@ -53,10 +48,8 @@ expr *add(expr *e)
     return result;
 }
 
-expr *sub(expr *e)
+expr *sub(expr *a, expr *b)
 {
-    expr *a = car(e);
-    expr *b = car(cdr(e));
     if (a->atom != ATOM_NUMERIC || b->atom != ATOM_NUMERIC)
         return find_atom("NIL");
     expr *result = calloc(sizeof *result, 1);
@@ -74,19 +67,20 @@ expr *def(expr *e)
     expr *args = car(cdr(e));
     expr *func = cdr(cdr(e));
     int i = 0;
-    for (i = 0; i < MAX_DEFS && def_names[i]; i++)
+    for (i = 0; i < MAX_DEFS && def_atoms[i]; i++)
         ;
     if (i >= MAX_DEFS)
         die("More than %d defs!\n", MAX_DEFS);
-    def_names[i] = atom_names[name->atom];
-    return def_exprs[i] = def_bind(args, func);
+    def_atoms[i] = name->atom;
+    def_exprs[i] = def_bind(args, func);
+    return cons(find_atom("DEFINED"), cons(name, find_atom("NIL")));
 }
 
 static expr *def_bind(expr *args, expr *func)
 {
     if (func->atom) {
         int index = 0;
-        for (expr *l = args; l->atom == 0; l = args->right, index++) {
+        for (expr *l = args; l->atom == 0; l = l->right, index++) {
             if (l->left->atom == func->atom) {
                 func->atom = func->numval = 0;
                 func->bound = index;

@@ -1,12 +1,7 @@
-#include "parse.h"
 #include "axiom.h"
-#include "builtins.h"
-#include "execute.h"
-#include "fancy.h"
 #include <ctype.h>
 #include <stdlib.h>
 
-static void parse_print_expr(expr *e, int last_was_atom);
 static expr *parse_read_atom(FILE *f);
 
 expr *parse(FILE *f, int level)
@@ -30,13 +25,12 @@ expr *parse(FILE *f, int level)
             }
             break;
         case ')':
-            e = execute(e);
             if (level == 1) {
+                e = eval(e, nila);
                 if (getenv("FANCY")) {
                     fancy_print(e);
                 } else {
-                    parse_print_expr(e, 0);
-                    printf("\n");
+                    print(e);
                 }
             }
             return e;
@@ -97,4 +91,10 @@ static void parse_print_expr(expr *e, int last_was_atom)
         }
         printf(")");
     }
+}
+
+void print(expr *e)
+{
+    parse_print_expr(e, 0);
+    printf("\n");
 }

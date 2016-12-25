@@ -1,12 +1,11 @@
 #include "axiom.h"
-#include "parse.h"
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include <errno.h>
 #include <ctype.h>
 
-char *def_names[MAX_DEFS] = {};
+int   def_atoms[MAX_DEFS] = {};
 expr *def_exprs[MAX_DEFS] = {};
 char *atom_names[MAX_ATOMS] = { "__not_an_atom", "__number", };
 expr *atom_exprs[MAX_ATOMS] = { NULL, NULL, };

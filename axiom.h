@@ -12,7 +12,7 @@ typedef struct _expr {
     struct _expr *right;
 } expr; 
 
-extern char *def_names[MAX_DEFS];
+extern int   def_atoms[MAX_DEFS];
 extern expr *def_exprs[MAX_DEFS];
 extern char *atom_names[MAX_ATOMS];
 extern expr *atom_exprs[MAX_ATOMS];
@@ -24,5 +24,10 @@ extern expr *find_atom(const char *label);
 #define die(...) do { fprintf (stderr, __VA_ARGS__); exit(1); } while (0)
 // remove for golfing
 #define deb(f, ...) do { fprintf (stderr, f "\n", ##__VA_ARGS__); } while (0)
+
+#include "builtins.h"
+#include "eval.h"
+#include "fancy.h"
+#include "parse.h"
 
 #endif

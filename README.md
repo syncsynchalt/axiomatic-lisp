@@ -18,6 +18,10 @@ The following to build math capabilities:
 * ADD: add 1 2 -> 3
 * SUB: sub 3 2 -> 1
 
+The following intermediate functions made from axioms:
+
+* QUOTE: quote (car (a)) -> car (a) [ie. not executed]
+
 And, the ability to define functions:
 
 * DEF: def (x, y, ...) (S-Expression using x, y, ...)
