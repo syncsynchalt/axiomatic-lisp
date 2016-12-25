@@ -12,15 +12,17 @@ test: axiom
 		echo "Testing $$i"; \
 		./axiom < $$i > /tmp/$$$$.txt; \
 		if [ $$? != "0" ]; then \
-			echo "*** failure running $$i ***" 1>&2; \
-			exit 1; \
+			let fails++; \
 		fi; \
 		diff -u $$i.expect /tmp/$$$$.txt 1>&2; \
 		if [ $$? != "0" ]; then \
-			echo "*** failure in output of $$i ***" 1>&2; \
-			exit 1; \
+			let fails++; \
 		fi \
-	done
+	done; \
+	if [ -n "$$fails" ]; then \
+		echo "*** $$fails tests failed ***" 1>&2; \
+		exit 1; \
+	fi
 
 clean:
 	rm -f $(OBJ) axiom
