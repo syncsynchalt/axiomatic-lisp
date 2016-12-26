@@ -29,7 +29,6 @@ extern expr *NIL;
 
 #include "builtins.h"
 #include "eval.h"
-#include "fancy.h"
 #include "parse.h"
 
 #endif

@@ -30,11 +30,7 @@ expr *parse(FILE *f, int level)
         case ')':
             if (level == 1) {
                 e = eval(e, NIL);
-                if (getenv("FANCY")) {
-                    fancy_print(e);
-                } else {
-                    print(e);
-                }
+                print(e);
             }
             return e;
             break;
