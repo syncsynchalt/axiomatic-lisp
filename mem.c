@@ -37,7 +37,7 @@ static void mark(expr *e)
 
 static void unmark(expr *e)
 {
-    if (e->atom > MAX_ATOMS)
+    if (e->atom >= MAX_ATOMS)
         e->atom -= MAX_ATOMS;
     if (e->left->atom != NIL->atom)
         unmark(e->left);
@@ -45,21 +45,25 @@ static void unmark(expr *e)
         unmark(e->right);
 }
 
-static void sweep()
+static int sweep()
 {
+    int count = 0;
     for (size_t i = 1; i < MAX_CELLS; i++) {
         if (arena[i].atom < MAX_ATOMS) {
+            count++;
             arena[i].left = NIL;
             arena[i].atom = arena[i].numval = 0;
             arena[i].right = freelist;
             freelist = &arena[i];
         }
     }
+    if (!count)
+        die("Unable to find free memory");
+    return count;
 }
 
 static void gc() 
 {
-    fprintf(stderr, "\n\n--- garbage collect ---\n\n");
     for (size_t i = 0; i < MAX_DEFS; i++) if (def_argsl[i]) mark(def_argsl[i]);
     for (size_t i = 0; i < MAX_DEFS; i++) if (def_exprs[i]) mark(def_exprs[i]);
     for (size_t i = 0; i < MAX_ATOMS; i++) if (atom_exprs[i]) mark(atom_exprs[i]);

@@ -33,11 +33,8 @@ static expr *cond(expr *conditions, expr *a)
 {
     if (conditions->atom == NIL->atom)
         return NIL;
-    if (eval(car(car(conditions)), a)->atom == find_atom("T")->atom) {
-        // todo - get around this deref
-        expr *r = eval(cdr(car(conditions)), a);
-        return r->atom ? r : car(r);
-    }
+    if (eval(car(car(conditions)), a)->atom == find_atom("T")->atom)
+        return eval(car(cdr(car(conditions))), a);
     return cond(cdr(conditions), a);
 }
 

@@ -2,7 +2,7 @@
 (def sum (numbers) (
     cond (
         ((eq (car numbers) nil) 0)
-        (T add (car numbers) (sum (cdr numbers)))
+        (T (add (car numbers) (sum (cdr numbers))))
     )
 ))
 (sum (1))

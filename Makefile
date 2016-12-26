@@ -1,6 +1,11 @@
 SRC = $(wildcard *.c)
 OBJ = $(patsubst %.c, %.o, $(SRC))
-CFLAGS = -glldb -std=c11 -Wall -D_BSD_SOURCE
+CFLAGS = -std=c11 -Wall -D_BSD_SOURCE -O3
+ifeq ($(shell uname -s), Darwin)
+	CFLAGS += -glldb
+else
+	CFLAGS += -ggdb
+endif
 
 all: axiom
 
@@ -13,10 +18,11 @@ test: axiom
 		./axiom < $$i > /tmp/$$$$.txt; \
 		if [ $$? != "0" ]; then \
 			let fails++; \
-		fi; \
-		diff -u $$i.expect /tmp/$$$$.txt 1>&2; \
-		if [ $$? != "0" ]; then \
-			let fails++; \
+		else \
+			diff -u $$i.expect /tmp/$$$$.txt 1>&2; \
+			if [ $$? != "0" ]; then \
+				let fails++; \
+			fi; \
 		fi \
 	done; \
 	if [ -n "$$fails" ]; then \

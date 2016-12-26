@@ -3,7 +3,7 @@
 
 #define MAX_ATOMS 1000
 #define MAX_DEFS 1000
-#define MAX_CELLS 10000
+#define MAX_CELLS 2000
 
 typedef struct _expr {
     int atom;  // 0 if non-atom
