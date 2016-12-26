@@ -6,13 +6,16 @@
 #include <ctype.h>
 
 int   def_atoms[MAX_DEFS] = {};
+expr *def_argsl[MAX_DEFS] = {};
 expr *def_exprs[MAX_DEFS] = {};
 char *atom_names[MAX_ATOMS] = { "__not_an_atom", "__number", };
 expr *atom_exprs[MAX_ATOMS] = { NULL, NULL, };
-#define ATOM_NUMERIC 1
+
+expr *NIL;
 
 int main(int argc, char **argv)
 {
+    NIL = find_atom("NIL");
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--") == 0)
             break;

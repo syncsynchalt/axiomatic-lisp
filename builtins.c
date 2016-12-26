@@ -30,7 +30,7 @@ expr *cons(expr *a, expr *b)
 expr *eq(expr *a, expr *b)
 {
     if (!a->atom || !b->atom)
-        return find_atom("NIL");
+        return NIL;
     if (a->atom == b->atom && (a->numval == b->numval))
         return find_atom("T");
     else
@@ -40,26 +40,24 @@ expr *eq(expr *a, expr *b)
 expr *add(expr *a, expr *b)
 {
     if (a->atom != ATOM_NUMERIC || b->atom != ATOM_NUMERIC)
-        return find_atom("NIL");
+        return NIL;
     expr *result = calloc(sizeof *result, 1);
     result->atom = ATOM_NUMERIC;
     result->numval = a->numval + b->numval;
-    result->left = result->right = find_atom("NIL");
+    result->left = result->right = NIL;
     return result;
 }
 
 expr *sub(expr *a, expr *b)
 {
     if (a->atom != ATOM_NUMERIC || b->atom != ATOM_NUMERIC)
-        return find_atom("NIL");
+        return NIL;
     expr *result = calloc(sizeof *result, 1);
     result->atom = ATOM_NUMERIC;
     result->numval = a->numval - b->numval;
-    result->left = result->right = find_atom("NIL");
+    result->left = result->right = NIL;
     return result;
 }
-
-static expr *def_bind(expr *args, expr *func);
 
 expr *def(expr *e)
 {
@@ -72,23 +70,7 @@ expr *def(expr *e)
     if (i >= MAX_DEFS)
         die("More than %d defs!\n", MAX_DEFS);
     def_atoms[i] = name->atom;
-    def_exprs[i] = def_bind(args, func);
-    return cons(find_atom("DEFINED"), cons(name, find_atom("NIL")));
-}
-
-static expr *def_bind(expr *args, expr *func)
-{
-    if (func->atom) {
-        int index = 0;
-        for (expr *l = args; l->atom == 0; l = l->right, index++) {
-            if (l->left->atom == func->atom) {
-                func->atom = func->numval = 0;
-                func->bound = index;
-            }
-        }
-    } else {
-        def_bind(args, car(func));
-        def_bind(args, cdr(func));
-    }
-    return func;
+    def_argsl[i] = args;
+    def_exprs[i] = func;
+    return cons(find_atom("DEFINED"), cons(name, NIL));
 }

@@ -1,9 +1,30 @@
 #include "axiom.h"
 #include <strings.h>
 
+// assoc[X; ((W, (A, B)), (X, (C, D)), (Y, (E, F)))] = (C, D)
+static expr *assoc(expr *key, expr *keyvals)
+{
+    if (keyvals->atom == NIL->atom)
+        // not defined in paper, I went with identity
+        return key;
+    if (car(car(keyvals))->atom == key->atom)
+        return car(cdr(car(keyvals)));
+    return assoc(key, cdr(keyvals));
+}
+
+// pair[(A, B, C); (X, (Y, Z), U)] = ((A, X), (B, (Y, Z)), (C, U))
+static expr *pair(expr *x, expr *y)
+{
+    if (x->atom == NIL->atom)
+        return NIL;
+    return cons(cons(car(x), cons(car(y), NIL)), pair(cdr(x), cdr(y)));
+}
+
 expr *eval(expr *e, expr *a)
 {
-    // todo ASSOC atom
+    if (e->atom) {
+        return assoc(e, a);
+    }
     expr *cmd = car(e);
     expr *arg1 = car(cdr(e));
     expr *arg2 = car(cdr(cdr(e)));
@@ -32,8 +53,11 @@ expr *eval(expr *e, expr *a)
         return def(cdr(e));
     for (int defnum = 0; def_atoms[defnum]; defnum++) {
         if (cmd->atom == def_atoms[defnum]) {
-            return eval(def_exprs[defnum], a);
+            expr *a2 = pair(def_argsl[defnum], cdr(e));
+            return eval(def_exprs[defnum], a2);
         }
     }
     return e;
 }
+
+// todo apply

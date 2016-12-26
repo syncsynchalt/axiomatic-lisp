@@ -9,7 +9,7 @@ axiom: $(OBJ)
 
 test: axiom
 	@for i in tests/*.lisp; do \
-		echo "Testing $$i"; \
+		echo "x Testing $$i"; \
 		./axiom < $$i > /tmp/$$$$.txt; \
 		if [ $$? != "0" ]; then \
 			let fails++; \

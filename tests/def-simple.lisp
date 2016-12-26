@@ -1,2 +1,4 @@
-(def combine (x y) (quote(cons(x y))))
-(combine((a b) (c d)))
+(def combine (x y)
+    cons x y
+)
+(combine a (c d))

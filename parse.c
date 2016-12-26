@@ -6,8 +6,7 @@ static expr *parse_read_atom(FILE *f);
 
 expr *parse(FILE *f, int level)
 {
-    expr *nila = find_atom("NIL");
-    expr *e = nila;
+    expr *e = NIL;
     expr *tip = e;
     expr *next = NULL;
     for (;;) {
@@ -17,16 +16,16 @@ expr *parse(FILE *f, int level)
         switch (c) {
         case '(':
             next = parse(f, level+1);
-            if (tip->atom == nila->atom) {
-                e = tip = cons(next, nila);
+            if (tip->atom == NIL->atom) {
+                e = tip = cons(next, NIL);
             } else {
-                tip->right = cons(next, nila);
+                tip->right = cons(next, NIL);
                 tip = tip->right;
             }
             break;
         case ')':
             if (level == 1) {
-                e = eval(e, nila);
+                e = eval(e, NIL);
                 if (getenv("FANCY")) {
                     fancy_print(e);
                 } else {
@@ -40,10 +39,10 @@ expr *parse(FILE *f, int level)
         default:
             ungetc(c, f);
             next = parse_read_atom(f);
-            if (e->atom == nila->atom) {
-                e = tip = cons(next, nila);
+            if (e->atom == NIL->atom) {
+                e = tip = cons(next, NIL);
             } else {
-                tip->right = cons(next, nila);
+                tip->right = cons(next, NIL);
                 tip = tip->right;
             }
             break;
@@ -76,25 +75,31 @@ static expr *parse_read_atom(FILE *f)
     }
 }
 
-static void parse_print_expr(expr *e, int last_was_atom)
+static void parse_print_expr(FILE *f, expr *e, int last_was_atom)
 {
     if (last_was_atom)
-        printf(" ");
+        fprintf(f, " ");
     if (e->atom == ATOM_NUMERIC) {
-        printf("%d", e->numval);
+        fprintf(f, "%d", e->numval);
     } else if (e->atom) {
-        printf("%s", atom_names[e->atom]);
+        fprintf(f, "%s", atom_names[e->atom]);
     } else {
-        printf("(");
-        for (int i = 0; e->atom != find_atom("NIL")->atom; i++, e = cdr(e)) {
-            parse_print_expr(car(e), i);
+        fprintf(f, "(");
+        for (int i = 0; e->atom != NIL->atom; i++, e = cdr(e)) {
+            parse_print_expr(f, car(e), i);
         }
-        printf(")");
+        fprintf(f, ")");
     }
 }
 
 void print(expr *e)
 {
-    parse_print_expr(e, 0);
-    printf("\n");
+    parse_print_expr(stdout, e, 0);
+    fprintf(stdout, "\n");
+}
+
+void dprint(expr *e)
+{
+    parse_print_expr(stderr, e, 0);
+    fprintf(stderr, "\n");
 }
