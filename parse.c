@@ -14,6 +14,10 @@ expr *parse(FILE *f, int level)
         if (c < 0)
             break;
         switch (c) {
+        case ';': // comment
+            while (c != ';' && !feof(f))
+                c = fgetc(f);
+            break;
         case '(':
             next = parse(f, level+1);
             if (tip->atom == NIL->atom) {

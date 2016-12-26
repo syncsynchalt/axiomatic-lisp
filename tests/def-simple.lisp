@@ -1,4 +1,4 @@
-(def combine (x y)
+(def combine (x y) (
     cons x y
-)
+))
 (combine a (c d))

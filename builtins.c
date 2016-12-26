@@ -63,7 +63,7 @@ expr *def(expr *e)
 {
     expr *name = car(e);
     expr *args = car(cdr(e));
-    expr *func = cdr(cdr(e));
+    expr *func = car(cdr(cdr(e)));
     int i = 0;
     for (i = 0; i < MAX_DEFS && def_atoms[i]; i++)
         ;

@@ -3,7 +3,7 @@
 Implementing LISP from [the original McCarthy paper]
 (https://www.brinckerhoff.org/clements/csc530-sp09/Readings/mccarthy-1960.pdf).
 
-The goal is to implement a working LISP with the fewest built-in defs.
+The goal is to implement a working LISP with the fewest lines of C.
 
 S-Expressions are implemented, with the following "axioms" from the McCarthy paper:
 
@@ -18,16 +18,21 @@ The following to build math capabilities:
 * ADD: add 1 2 -> 3
 * SUB: sub 3 2 -> 1
 
-The following intermediate functions made from axioms:
+The following intermediate functions made from the above axioms:
 
 * QUOTE: quote (car (a)) -> car (a) [ie. not executed]
+* ASSOC
+* PAIR
+* EVAL
 
 And, the ability to define functions:
 
 * DEF: def (x, y, ...) (S-Expression using x, y, ...)
 
-To run,
+### Build and Run
 
+    make
+    make test #(optional)
     ./axiom {source1.lisp, source2.lisp, ...}
 
 Atoms are instantiated on first use.  Case is ignored.
