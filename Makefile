@@ -1,6 +1,6 @@
 SRC = $(wildcard *.c)
 OBJ = $(patsubst %.c, %.o, $(SRC))
-CFLAGS = -g -std=c11 -Wall -D_BSD_SOURCE
+CFLAGS = -glldb -std=c11 -Wall -D_BSD_SOURCE
 
 all: axiom
 

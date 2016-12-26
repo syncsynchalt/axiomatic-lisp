@@ -15,7 +15,7 @@ expr *parse(FILE *f, int level)
             break;
         switch (c) {
         case ';': // comment
-            while (c != ';' && !feof(f))
+            while (c != '\n' && !feof(f))
                 c = fgetc(f);
             break;
         case '(':
@@ -53,9 +53,9 @@ expr *parse(FILE *f, int level)
 
 static expr *parse_read_atom(FILE *f)
 {
-    char *buf = NULL;
-    int buflen = 0;
-    for (;;) {
+    static char *buf = NULL;
+    static int buflen = 0;
+    for (buflen = 0;;) {
         int c = fgetc(f);
         if (c < 0)
             die("End of input");

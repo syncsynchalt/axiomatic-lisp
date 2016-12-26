@@ -3,6 +3,7 @@
 
 #define MAX_ATOMS 1000
 #define MAX_DEFS 1000
+#define MAX_CELLS 10000
 
 typedef struct _expr {
     int atom;  // 0 if non-atom
@@ -18,8 +19,6 @@ extern char *atom_names[MAX_ATOMS];
 extern expr *atom_exprs[MAX_ATOMS];
 #define ATOM_NUMERIC 1
 
-extern expr *find_atom(const char *label);
-
 extern expr *NIL;
 
 #include <stdio.h>
@@ -30,5 +29,6 @@ extern expr *NIL;
 #include "builtins.h"
 #include "eval.h"
 #include "parse.h"
+#include "mem.h"
 
 #endif

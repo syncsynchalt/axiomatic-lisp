@@ -21,7 +21,7 @@ expr *cdr(expr *e)
 
 expr *cons(expr *a, expr *b)
 {
-    expr *e = calloc(sizeof *e, 1);
+    expr *e = get_free_cell();
     e->left = a;
     e->right = b;
     return e;
@@ -41,10 +41,9 @@ expr *add(expr *a, expr *b)
 {
     if (a->atom != ATOM_NUMERIC || b->atom != ATOM_NUMERIC)
         return NIL;
-    expr *result = calloc(sizeof *result, 1);
+    expr *result = get_free_cell();
     result->atom = ATOM_NUMERIC;
     result->numval = a->numval + b->numval;
-    result->left = result->right = NIL;
     return result;
 }
 

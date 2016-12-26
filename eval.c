@@ -76,7 +76,11 @@ expr *eval(expr *e, expr *a)
     for (int defnum = 0; def_atoms[defnum]; defnum++) {
         if (cmd->atom == def_atoms[defnum]) {
             expr *a2 = pair(def_argsl[defnum], evalmap(cdr(e), a));
+            //deb("{{{ calling %s with arglist:", atom_names[def_atoms[defnum]]);
+            //dprint(a2);
             expr *e = eval(def_exprs[defnum], a2);
+            //deb("}}} result:");
+            //dprint(e);
             return e;
         }
     }

@@ -36,5 +36,3 @@ And, the ability to define functions:
     ./axiom {source1.lisp, source2.lisp, ...}
 
 Atoms are instantiated on first use.  Case is ignored.
-
-Garbage collection is not implemented.
