@@ -9,14 +9,14 @@
 
 typedef struct _expr {
     int atom;  // 0 if non-atom
-    int numval; // only valid if atom == 1 (__number)
+    int numval; // only valid if atom == ATOM_NUMERIC
     struct _expr *left;
     struct _expr *right;
 } expr; 
 
-extern int   def_atoms[MAX_DEFS];
 extern char *atom_names[MAX_ATOMS];
 
+extern expr  *def_atoms[MAX_DEFS];
 extern expr **def_argsl;
 extern expr **def_exprs;
 extern expr **atom_exprs;
@@ -32,6 +32,9 @@ extern expr *base_registers[NUM_BASE_REGISTERS];
 #define ATOM_NUMERIC 1
 
 extern expr *NIL;
+extern expr *T;
+#define isNIL(e) ((e)->atom == NIL->atom ? 1 : 0)
+#define isT(e)   ((e)->atom ==   T->atom ? 1 : 0)
 
 #include <stdio.h>
 #define die(...) do { fprintf (stderr, __VA_ARGS__); exit(1); } while (0)

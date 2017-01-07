@@ -23,7 +23,7 @@ expr *parse(FILE *f, int level)
             break;
         case '(':
             next = parse(f, level+1);
-            if (tip->atom == NIL->atom) {
+            if (isNIL(tip)) {
                 parse_chain[level] = e = tip = cons(next, NIL);
             } else {
                 tip->right = cons(next, NIL);
@@ -41,7 +41,7 @@ expr *parse(FILE *f, int level)
         default:
             ungetc(c, f);
             next = parse_read_atom(f);
-            if (e->atom == NIL->atom) {
+            if (isNIL(e)) {
                 parse_chain[level] = e = tip = cons(next, NIL);
             } else {
                 tip->right = cons(next, NIL);
@@ -85,11 +85,11 @@ static void parse_print_expr(FILE *f, expr *e, int last_was_atom)
         fprintf(f, " ");
     if (e->atom == ATOM_NUMERIC) {
         fprintf(f, "%d", e->numval);
-    } else if (e->atom) {
+    } else if (isT(atom(e))) {
         fprintf(f, "%s", atom_names[e->atom]);
     } else {
         fprintf(f, "(");
-        for (int i = 0; e->atom != NIL->atom; i++, e = cdr(e)) {
+        for (int i = 0; !isNIL(e); i++, e = cdr(e)) {
             parse_print_expr(f, car(e), i);
         }
         fprintf(f, ")");

@@ -1,6 +1,6 @@
 SRC = $(wildcard *.c)
 OBJ = $(patsubst %.c, %.o, $(SRC))
-CFLAGS = -std=c11 -Wall -D_BSD_SOURCE
+CFLAGS = -std=c11 -Wall -Werror -D_BSD_SOURCE
 ifeq ($(shell uname -s), Darwin)
 	CFLAGS += -glldb
 else

@@ -5,7 +5,7 @@
 
 expr *base_registers[NUM_BASE_REGISTERS];
 
-int   def_atoms[MAX_DEFS] = {};
+expr  *def_atoms[MAX_DEFS] = {};
 expr **def_argsl = base_registers + ARGSL_OFFSET;
 expr **def_exprs = base_registers + EXPRS_OFFSET;
 char *atom_names[MAX_ATOMS] = { "__not_an_atom", "__number", "NIL", };
@@ -13,6 +13,7 @@ expr **atom_exprs = base_registers + ATOMS_OFFSET;
 expr *freelist = NULL;
 expr *arena = NULL;
 expr *NIL;
+expr *T;
 
 void init_cells()
 {
@@ -25,15 +26,16 @@ void init_cells()
     for (int i = 0; i < MAX_CELLS; i++)
         arena[i].right = &arena[i+1];
     arena[MAX_CELLS-1].right = NIL;
+    T = find_atom("T");
 }
 
 static void mark(expr *e)
 {
     if (e->atom < MAX_ATOMS)
         e->atom += MAX_ATOMS;
-    if (e->left->atom != NIL->atom)
+    if (!isNIL(car(e)))
         mark(e->left);
-    if (e->right->atom != NIL->atom)
+    if (!isNIL(cdr(e)))
         mark(e->right);
 }
 
@@ -41,9 +43,9 @@ static void unmark(expr *e)
 {
     if (e->atom >= MAX_ATOMS)
         e->atom -= MAX_ATOMS;
-    if (e->left->atom != NIL->atom)
+    if (!isNIL(car(e)))
         unmark(e->left);
-    if (e->right->atom != NIL->atom)
+    if (!isNIL(cdr(e)))
         unmark(e->right);
 }
 
@@ -75,7 +77,7 @@ static void gc()
 
 expr *get_free_cell()
 {
-    if (freelist->atom == NIL->atom)
+    if (isNIL(freelist))
         gc();
     expr *e = freelist;
     freelist = freelist->right;

@@ -19,10 +19,9 @@ expr *pop_gclink()
 // assoc[X; ((W, (A, B)), (X, (C, D)), (Y, (E, F)))] = (C, D)
 static expr *assoc(expr *key, expr *keyvals)
 {
-    if (keyvals->atom == NIL->atom)
-        // not defined in paper, I went with identity
+    if (isNIL(key) || isNIL(keyvals))
         return key;
-    if (car(car(keyvals))->atom == key->atom)
+    if (isT(eq(car(car(keyvals)), key)))
         return car(cdr(car(keyvals)));
     return assoc(key, cdr(keyvals));
 }
@@ -30,7 +29,7 @@ static expr *assoc(expr *key, expr *keyvals)
 // pair[(A, B, C); (X, (Y, Z), U)] = ((A, X), (B, (Y, Z)), (C, U))
 static expr *pair(expr *x, expr *y)
 {
-    if (x->atom == NIL->atom)
+    if (isNIL(x))
         return NIL;
     return cons(cons(car(x), cons(car(y), NIL)), pair(cdr(x), cdr(y)));
 }
@@ -38,7 +37,7 @@ static expr *pair(expr *x, expr *y)
 // evalmap[(T, F, (ADD, 1, 2))] = (T, F, 3)
 static expr *evalmap(expr *list, expr *a)
 {
-    if (list->atom == NIL->atom)
+    if (isNIL(list))
         return NIL;
     push_gclink(eval(car(list), a));
     push_gclink(evalmap(cdr(list), a));
@@ -50,9 +49,9 @@ static expr *evalmap(expr *list, expr *a)
 // cond[(((EQ, A, B), 1), ((EQ, A, A), 2), ((T), 3))] = 2
 static expr *cond(expr *conditions, expr *a)
 {
-    if (conditions->atom == NIL->atom)
+    if (isNIL(conditions))
         return NIL;
-    if (eval(car(car(conditions)), a)->atom == find_atom("T")->atom)
+    if (isT(eval(car(car(conditions)), a)))
         return eval(car(cdr(car(conditions))), a);
     return cond(cdr(conditions), a);
 }
@@ -68,7 +67,7 @@ static expr *eval2_and_call(expr *arg1, expr *arg2, expr *pairs, expr*(*func)(ex
 
 expr *eval(expr *e, expr *a)
 {
-    if (e->atom) {
+    if (isT(atom(e))) {
         return assoc(e, a);
     }
     push_gclink(e);
@@ -101,9 +100,9 @@ expr *eval(expr *e, expr *a)
     if (strcasecmp(label, "def") == 0)
         { e = def(cdr(e)); goto done; }
     for (int defnum = 0; def_atoms[defnum]; defnum++) {
-        if (cmd->atom == def_atoms[defnum]) {
+        if (isT(eq(cmd, def_atoms[defnum]))) {
             expr *a2 = pair(def_argsl[defnum], evalmap(cdr(e), a));
-            //deb("{{{ calling %s with arglist:", atom_names[def_atoms[defnum]]);
+            //deb("{{{ calling %s with arglist:", atom_names[def_atoms[defnum]->atom]);
             //dprint(a2);
             e = eval(def_exprs[defnum], a2);
             //deb("}}} result:");
@@ -117,4 +116,4 @@ done:
     return e;
 }
 
-// todo apply
+// todo apply / appq?

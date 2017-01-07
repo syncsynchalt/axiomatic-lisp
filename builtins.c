@@ -73,7 +73,7 @@ expr *def(expr *e)
         ;
     if (i >= MAX_DEFS)
         die("More than %d defs!\n", MAX_DEFS);
-    def_atoms[i] = name->atom;
+    def_atoms[i] = name;
     def_argsl[i] = args;
     def_exprs[i] = func;
     return cons(find_atom("DEFINED"), cons(name, NIL));
