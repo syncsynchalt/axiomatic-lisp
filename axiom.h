@@ -3,7 +3,8 @@
 
 #define MAX_ATOMS 1000
 #define MAX_DEFS 1000
-#define MAX_CELLS 2000
+#define MAX_CELLS 1000
+#define MAX_PARSE 1000
 
 typedef struct _expr {
     int atom;  // 0 if non-atom
@@ -13,10 +14,20 @@ typedef struct _expr {
 } expr; 
 
 extern int   def_atoms[MAX_DEFS];
-extern expr *def_argsl[MAX_DEFS];
-extern expr *def_exprs[MAX_DEFS];
 extern char *atom_names[MAX_ATOMS];
-extern expr *atom_exprs[MAX_ATOMS];
+
+extern expr **def_argsl;
+extern expr **def_exprs;
+extern expr **atom_exprs;
+extern expr **parse_chain;
+#define NUM_BASE_REGISTERS (6+MAX_DEFS+MAX_DEFS+MAX_ATOMS+MAX_PARSE+MAX_PARSE)
+extern expr *base_registers[NUM_BASE_REGISTERS];
+#define ARGSL_OFFSET (6)
+#define EXPRS_OFFSET (6+MAX_DEFS)
+#define ATOMS_OFFSET (6+MAX_DEFS+MAX_DEFS)
+#define PARSE_OFFSET (6+MAX_DEFS+MAX_DEFS+MAX_ATOMS)
+#define EVALS_OFFSET (6+MAX_DEFS+MAX_DEFS+MAX_ATOMS+MAX_PARSE)
+
 #define ATOM_NUMERIC 1
 
 extern expr *NIL;

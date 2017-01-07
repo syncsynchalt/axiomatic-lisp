@@ -3,9 +3,12 @@
 #include <stdlib.h>
 
 static expr *parse_read_atom(FILE *f);
+expr **parse_chain = base_registers + PARSE_OFFSET;
 
 expr *parse(FILE *f, int level)
 {
+    if (level >= MAX_PARSE)
+        die("More than %d parse levels!\n", MAX_PARSE);
     expr *e = NIL;
     expr *tip = e;
     expr *next = NULL;
@@ -21,7 +24,7 @@ expr *parse(FILE *f, int level)
         case '(':
             next = parse(f, level+1);
             if (tip->atom == NIL->atom) {
-                e = tip = cons(next, NIL);
+                parse_chain[level] = e = tip = cons(next, NIL);
             } else {
                 tip->right = cons(next, NIL);
                 tip = tip->right;
@@ -32,15 +35,14 @@ expr *parse(FILE *f, int level)
                 e = eval(e, NIL);
                 print(e);
             }
-            return e;
-            break;
+            goto done;
         case ' ': case '\n': case '\r': case '\t':
             break;
         default:
             ungetc(c, f);
             next = parse_read_atom(f);
             if (e->atom == NIL->atom) {
-                e = tip = cons(next, NIL);
+                parse_chain[level] = e = tip = cons(next, NIL);
             } else {
                 tip->right = cons(next, NIL);
                 tip = tip->right;
@@ -48,6 +50,8 @@ expr *parse(FILE *f, int level)
             break;
         }
     }
+done:
+    parse_chain[level] = NULL;
     return e;
 }
 

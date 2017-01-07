@@ -25,6 +25,7 @@ static expr *evalmap(expr *list, expr *a)
 {
     if (list->atom == NIL->atom)
         return NIL;
+//TODO gclink evals separately?
     return cons(eval(car(list), a), evalmap(cdr(list), a));
 }
 
@@ -40,6 +41,7 @@ static expr *cond(expr *conditions, expr *a)
 
 expr *eval(expr *e, expr *a)
 {
+//TODO gclink e and a?
     if (e->atom) {
         return assoc(e, a);
     }
@@ -60,18 +62,22 @@ expr *eval(expr *e, expr *a)
     if (strcasecmp(label, "cdr") == 0)
         return cdr(eval(arg1, a));
     if (strcasecmp(label, "cons") == 0)
+// TODO gclink save each half?
         return cons(eval(arg1, a), eval(arg2, a));
     // todo more CONS?
-    // todo LABEL
-    // todo LAMBDA
+    // todo LABEL?
+    // todo LAMBDA?
     if (strcasecmp(label, "add") == 0)
+// TODO gclink save each half?
         return add(eval(arg1, a), eval(arg2, a));
     if (strcasecmp(label, "sub") == 0)
+// TODO gclink save each half?
         return sub(eval(arg1, a), eval(arg2, a));
     if (strcasecmp(label, "def") == 0)
         return def(cdr(e));
     for (int defnum = 0; def_atoms[defnum]; defnum++) {
         if (cmd->atom == def_atoms[defnum]) {
+// TODO?
             expr *a2 = pair(def_argsl[defnum], evalmap(cdr(e), a));
             //deb("{{{ calling %s with arglist:", atom_names[def_atoms[defnum]]);
             //dprint(a2);

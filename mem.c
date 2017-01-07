@@ -3,11 +3,13 @@
 #include <string.h>
 #include <ctype.h>
 
+expr *base_registers[NUM_BASE_REGISTERS];
+
 int   def_atoms[MAX_DEFS] = {};
-expr *def_argsl[MAX_DEFS] = {};
-expr *def_exprs[MAX_DEFS] = {};
+expr **def_argsl = base_registers + ARGSL_OFFSET;
+expr **def_exprs = base_registers + EXPRS_OFFSET;
 char *atom_names[MAX_ATOMS] = { "__not_an_atom", "__number", "NIL", };
-expr *atom_exprs[MAX_ATOMS] = { NULL, NULL, NULL, };
+expr **atom_exprs = base_registers + ATOMS_OFFSET;
 expr *freelist = NULL;
 expr *arena = NULL;
 expr *NIL;
@@ -64,13 +66,11 @@ static int sweep()
 
 static void gc() 
 {
-    for (size_t i = 0; i < MAX_DEFS; i++) if (def_argsl[i]) mark(def_argsl[i]);
-    for (size_t i = 0; i < MAX_DEFS; i++) if (def_exprs[i]) mark(def_exprs[i]);
-    for (size_t i = 0; i < MAX_ATOMS; i++) if (atom_exprs[i]) mark(atom_exprs[i]);
+    for (size_t i = 0; i < sizeof(base_registers)/sizeof(*base_registers); i++)
+        if (base_registers[i]) mark(base_registers[i]);
     sweep();
-    for (size_t i = 0; i < MAX_DEFS; i++) if (def_argsl[i]) unmark(def_argsl[i]);
-    for (size_t i = 0; i < MAX_DEFS; i++) if (def_exprs[i]) unmark(def_exprs[i]);
-    for (size_t i = 0; i < MAX_ATOMS; i++) if (atom_exprs[i]) unmark(atom_exprs[i]);
+    for (size_t i = 0; i < sizeof(base_registers)/sizeof(*base_registers); i++)
+        if (base_registers[i]) unmark(base_registers[i]);
 }
 
 expr *get_free_cell()

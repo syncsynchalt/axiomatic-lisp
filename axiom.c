@@ -5,6 +5,7 @@
 
 int main(int argc, char **argv)
 {
+    setlinebuf(stdout);
     init_cells();
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--") == 0)
