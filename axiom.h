@@ -5,6 +5,7 @@
 #define MAX_DEFS 1000
 #define MAX_CELLS 1000
 #define MAX_PARSE 1000
+#define MAX_EVAL 1000
 
 typedef struct _expr {
     int atom;  // 0 if non-atom
@@ -20,7 +21,7 @@ extern expr **def_argsl;
 extern expr **def_exprs;
 extern expr **atom_exprs;
 extern expr **parse_chain;
-#define NUM_BASE_REGISTERS (6+MAX_DEFS+MAX_DEFS+MAX_ATOMS+MAX_PARSE+MAX_PARSE)
+#define NUM_BASE_REGISTERS (6+MAX_DEFS+MAX_DEFS+MAX_ATOMS+MAX_PARSE+MAX_EVAL)
 extern expr *base_registers[NUM_BASE_REGISTERS];
 #define ARGSL_OFFSET (6)
 #define EXPRS_OFFSET (6+MAX_DEFS)
