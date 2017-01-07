@@ -35,13 +35,13 @@ static expr *pair(expr *x, expr *y)
     return cons(cons(car(x), cons(car(y), NIL)), pair(cdr(x), cdr(y)));
 }
 
-// evalmap[(T, F, (ADD, 1, 2))] = (T, F, 3)
-static expr *evalmap(expr *list, expr *a)
+// evlis[(T, F, (ADD, 1, 2))] = (T, F, 3)
+static expr *evlis(expr *list, expr *a)
 {
     if (isNIL(list))
         return NIL;
     push_gclink(eval(car(list), a));
-    push_gclink(evalmap(cdr(list), a));
+    push_gclink(evlis(cdr(list), a));
     expr *e2 = pop_gclink();
     expr *e1 = pop_gclink();
     return cons(e1, e2);
@@ -100,9 +100,10 @@ expr *eval(expr *e, expr *a)
             { e = eval2_and_call(arg1, arg2, a, sub); goto done; }
         if (strcasecmp(label, "def") == 0)
             { e = def(cdr(e)); goto done; }
+        // todo figure out how to implement this in original paper's form
         for (int defnum = 0; def_atoms[defnum]; defnum++) {
             if (isT(eq(cmd, def_atoms[defnum]))) {
-                expr *a2 = pair(def_argsl[defnum], evalmap(cdr(e), a));
+                expr *a2 = pair(def_argsl[defnum], evlis(cdr(e), a));
                 //deb("{{{ calling %s with arglist:", atom_names[def_atoms[defnum]->atom]);
                 //dprint(a2);
                 e = eval(def_exprs[defnum], a2);
