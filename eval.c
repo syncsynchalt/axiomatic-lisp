@@ -46,20 +46,22 @@ static expr *evalmap(expr *list, expr *a)
     return cons(e1, e2);
 }
 
-// cond[(((EQ, A, B), 1), ((EQ, A, A), 2), ((T), 3))] = 2
-static expr *cond(expr *conditions, expr *a)
+// implementation of evcon
+// evcon[(((EQ, A, B), 1), ((EQ, A, A), 2), ((T), 3))] = 2
+static expr *evcon(expr *conditions, expr *a)
 {
     if (isNIL(conditions))
         return NIL;
     if (isT(eval(car(car(conditions)), a)))
         return eval(car(cdr(car(conditions))), a);
-    return cond(cdr(conditions), a);
+    return evcon(cdr(conditions), a);
 }
 
-static expr *eval2_and_call(expr *arg1, expr *arg2, expr *pairs, expr*(*func)(expr*,expr*))
+// needed to hold gc links
+static expr *eval2_and_call(expr *arg1, expr *arg2, expr *a, expr*(*func)(expr*,expr*))
 {
-    push_gclink(eval(arg1, pairs));
-    push_gclink(eval(arg2, pairs));
+    push_gclink(eval(arg1, a));
+    push_gclink(eval(arg2, a));
     expr *e2 = pop_gclink();
     expr *e1 = pop_gclink();
     return func(e1, e2);
@@ -72,44 +74,45 @@ expr *eval(expr *e, expr *a)
     }
     push_gclink(e);
     push_gclink(a);
-    expr *cmd = car(e);
-    expr *arg1 = car(cdr(e));
-    expr *arg2 = car(cdr(cdr(e)));
-    const char *label = atom_names[cmd->atom];
-    if (strcasecmp(label, "quote") == 0)
-        { e = arg1; goto done; }
-    if (strcasecmp(label, "atom") == 0)
-        { e = atom(eval(arg1, a)); goto done; }
-    if (strcasecmp(label, "eq") == 0)
-        { e = eval2_and_call(arg1, arg2, a, eq); goto done; }
-    if (strcasecmp(label, "cond") == 0)
-        { e = cond(arg1, a); goto done; }
-    if (strcasecmp(label, "car") == 0)
-        { e = car(eval(arg1, a)); goto done; }
-    if (strcasecmp(label, "cdr") == 0)
-        { e = cdr(eval(arg1, a)); goto done; }
-    if (strcasecmp(label, "cons") == 0)
-        { e = eval2_and_call(arg1, arg2, a, cons); goto done; }
-    // todo more CONS?
-    // todo LABEL?
-    // todo LAMBDA?
-    if (strcasecmp(label, "add") == 0)
-        { e = eval2_and_call(arg1, arg2, a, add); goto done; }
-    if (strcasecmp(label, "sub") == 0)
-        { e = eval2_and_call(arg1, arg2, a, sub); goto done; }
-    if (strcasecmp(label, "def") == 0)
-        { e = def(cdr(e)); goto done; }
-    for (int defnum = 0; def_atoms[defnum]; defnum++) {
-        if (isT(eq(cmd, def_atoms[defnum]))) {
-            expr *a2 = pair(def_argsl[defnum], evalmap(cdr(e), a));
-            //deb("{{{ calling %s with arglist:", atom_names[def_atoms[defnum]->atom]);
-            //dprint(a2);
-            e = eval(def_exprs[defnum], a2);
-            //deb("}}} result:");
-            //dprint(e);
-            goto done;
+    if (isT(atom(car(e)))) {
+        expr *cmd = car(e);
+        expr *arg1 = car(cdr(e));
+        expr *arg2 = car(cdr(cdr(e)));
+        const char *label = atom_names[cmd->atom];
+        if (strcasecmp(label, "quote") == 0)
+            { e = arg1; goto done; }
+        if (strcasecmp(label, "atom") == 0)
+            { e = atom(eval(arg1, a)); goto done; }
+        if (strcasecmp(label, "eq") == 0)
+            { e = eval2_and_call(arg1, arg2, a, eq); goto done; }
+        if (strcasecmp(label, "cond") == 0)
+            { e = evcon(arg1, a); goto done; }
+        if (strcasecmp(label, "car") == 0)
+            { e = car(eval(arg1, a)); goto done; }
+        if (strcasecmp(label, "cdr") == 0)
+            { e = cdr(eval(arg1, a)); goto done; }
+        if (strcasecmp(label, "cons") == 0)
+            { e = eval2_and_call(arg1, arg2, a, cons); goto done; }
+        if (strcasecmp(label, "add") == 0)
+            { e = eval2_and_call(arg1, arg2, a, add); goto done; }
+        if (strcasecmp(label, "sub") == 0)
+            { e = eval2_and_call(arg1, arg2, a, sub); goto done; }
+        if (strcasecmp(label, "def") == 0)
+            { e = def(cdr(e)); goto done; }
+        for (int defnum = 0; def_atoms[defnum]; defnum++) {
+            if (isT(eq(cmd, def_atoms[defnum]))) {
+                expr *a2 = pair(def_argsl[defnum], evalmap(cdr(e), a));
+                //deb("{{{ calling %s with arglist:", atom_names[def_atoms[defnum]->atom]);
+                //dprint(a2);
+                e = eval(def_exprs[defnum], a2);
+                //deb("}}} result:");
+                //dprint(e);
+                goto done;
+            }
         }
     }
+    // todo LABEL?
+    // todo LAMBDA?
 done:
     pop_gclink();
     pop_gclink();
