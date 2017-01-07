@@ -19,6 +19,7 @@ expr *pop_gclink()
 // assoc[X; ((W, (A, B)), (X, (C, D)), (Y, (E, F)))] = (C, D)
 static expr *assoc(expr *key, expr *keyvals)
 {
+    // bug in original paper?  it doesn't have the second condition to avoid loop
     if (isNIL(key) || isNIL(keyvals))
         return key;
     if (isT(eq(car(car(keyvals)), key)))
