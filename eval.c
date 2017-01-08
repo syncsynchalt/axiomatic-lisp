@@ -122,7 +122,7 @@ expr *eval(expr *e, expr *a)
                 goto done;
             }
         }
-        e = eval(cons(assoc(car(e), a), evlis(cdr(e), a)), a);
+        e = eval(cons(assoc(car(e), a), cdr(e)), a);
         goto done;
     }
     // eval [cons [caddar [e]; cdr [e]]; cons [list [cadar [e]; car [e]; a]];
