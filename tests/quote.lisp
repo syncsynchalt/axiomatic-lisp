@@ -1,1 +1,1 @@
-(quote (car (a)))
+((car (a)))

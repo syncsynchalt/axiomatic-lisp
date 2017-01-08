@@ -32,7 +32,7 @@ expr *parse(FILE *f, int level)
             break;
         case ')':
             if (level == 1) {
-                e = eval(e, NIL);
+                e = apply(car(e), cdr(e));
                 print(e);
             }
             goto done;

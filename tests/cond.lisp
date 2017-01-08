@@ -1,10 +1,8 @@
 ; test cond implementation
 (def testcond (x) (
-    cond (
-        ((eq x a) 1)
-        ((eq x b) 2)
-        (t 3)
-    )
+    cond ((eq x (QUOTE a)) (QUOTE 1))
+         ((eq x (QUOTE b)) (QUOTE 2))
+         ((QUOTE t) (QUOTE 3))
 ))
 (testcond a)
 (testcond b)
