@@ -62,14 +62,3 @@ expr *sub(expr *a, expr *b)
     result->numval = a->numval - b->numval;
     return result;
 }
-
-expr *def(expr *name, expr *args, expr *func)
-{
-    static int max_def = 0;
-    if (max_def >= MAX_DEFS)
-        die("More than %d defs!\n", MAX_DEFS);
-    def_atoms[max_def]   = name;
-    def_argsl[max_def]   = args;
-    def_exprs[max_def++] = func;
-    return cons(find_atom("DEFINED"), cons(name, NIL));
-}

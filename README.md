@@ -27,7 +27,7 @@ The following intermediate functions made from the above axioms:
 
 And, the ability to define functions:
 
-* DEF: def (x, y, ...) (S-Expression using x, y, ...)
+* DEFUN: defun (x, y, ...) (S-Expression using x, y, ...)
 
 ### Build and Run
 

@@ -62,6 +62,15 @@ static expr *eval2_and_call(expr *arg1, expr *arg2, expr *a, expr*(*func)(expr*,
     return func(_(eval(arg1, a)), _(eval(arg2, a)));
 }
 
+expr *defun(expr *name, expr *args, expr *func)
+{
+    expr *lambda = cons(find_atom("lambda"), cons(args, cons(func, NIL)));
+    expr *label = cons(find_atom("label"), cons(args, cons(lambda, NIL)));
+    expr *pair = cons(name, cons(label, NIL));
+    env = base_registers[6] = cons(pair, env);
+    return cons(find_atom("defun"), cons(name, NIL));
+}
+
 expr *eval(expr *e, expr *a)
 {
     if (isT(atom(e))) {
@@ -95,25 +104,12 @@ expr *eval(expr *e, expr *a)
             { e = eval2_and_call(arg1, arg2, a, add); goto done; }
         if (strcasecmp(label, "sub") == 0)
             { e = eval2_and_call(arg1, arg2, a, sub); goto done; }
-        // todo re-implement all users in original paper's form of label/lambda
-        if (strcasecmp(label, "def") == 0) {
+        if (strcasecmp(label, "defun") == 0) {
             expr *name = _(eval(car(cdr(e)), a));
             expr *args = _(eval(car(cdr(cdr(e))), a));
             expr *func = _(eval(car(cdr(cdr(cdr(e)))), a));
-            e = def(name, args, func);
+            e = defun(name, args, func);
             goto done;
-        }
-        // todo re-implement def in original paper's form of label/lambda
-        for (int defnum = 0; def_atoms[defnum]; defnum++) {
-            if (isT(eq(cmd, def_atoms[defnum]))) {
-                expr *a2 = pair(def_argsl[defnum], evlis(cdr(e), a), NIL);
-                //deb("{{{ calling %s with arglist:", atom_names[def_atoms[defnum]->atom]);
-                //dprint(a2);
-                e = eval(def_exprs[defnum], a2);
-                //deb("}}} result:");
-                //dprint(e);
-                goto done;
-            }
         }
         e = eval(cons(assoc(car(e), a), cdr(e)), a);
         goto done;
@@ -154,5 +150,5 @@ static expr *appq(expr *m)
 expr *apply(expr *f, expr *args)
 {
     expr *q = _(appq(args));
-    return pop_gcstack(0, eval(cons(f, q), NIL));
+    return pop_gcstack(0, eval(cons(f, q), env));
 }

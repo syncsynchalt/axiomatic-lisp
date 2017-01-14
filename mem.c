@@ -5,20 +5,18 @@
 
 expr *base_registers[NUM_BASE_REGISTERS];
 
-expr  *def_atoms[MAX_DEFS] = {};
-expr **def_argsl = base_registers + ARGSL_OFFSET;
-expr **def_exprs = base_registers + EXPRS_OFFSET;
 char *atom_names[MAX_ATOMS] = { "__not_an_atom", "__number", "NIL", };
 expr **atom_exprs = base_registers + ATOMS_OFFSET;
 expr *freelist = NULL;
 expr *arena = NULL;
+expr *env = NULL;
 expr *NIL;
 expr *T;
 
 void init_cells()
 {
     arena = calloc(sizeof *arena, MAX_CELLS);
-    NIL = &arena[0];
+    env = NIL = &arena[0];
     NIL->right = NIL->left = NIL;
     NIL->atom = 2;
     atom_exprs[2] = NIL;

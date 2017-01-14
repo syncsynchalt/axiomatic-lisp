@@ -11,6 +11,5 @@ extern expr *eq(expr *a, expr *b);
 // from me
 extern expr *add(expr *a, expr *b);
 extern expr *sub(expr *a, expr *b);
-extern expr *def(expr *name, expr *args, expr *func);
 
 #endif
