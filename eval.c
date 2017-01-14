@@ -5,16 +5,17 @@
 expr **eval_gclinks = base_registers + EVALS_OFFSET;
 static int cur_eval_gclink = 0;
 
-expr *push_gclink(expr *e)
+// push onto GC stack
+expr *_(expr *e)
 {
     return eval_gclinks[cur_eval_gclink++] = e;
 }
 
-expr *pop_gclink()
+expr *pop_gcstack(int level, expr *ret)
 {
-    expr *e = eval_gclinks[--cur_eval_gclink];
-    eval_gclinks[cur_eval_gclink] = 0;
-    return e;
+    while (cur_eval_gclink > level)
+        eval_gclinks[--cur_eval_gclink] = 0;
+    return ret;
 }
 
 // assoc[X; ((W, (A, B)), (X, (C, D)), (Y, (E, F)))] = (C, D)
@@ -41,10 +42,7 @@ static expr *evlis(expr *l, expr *a)
 {
     if (isNIL(l))
         return NIL;
-    expr *e1 = push_gclink(eval(car(l), a));
-    expr *e2 = evlis(cdr(l), a);
-    pop_gclink();
-    return cons(e1, e2);
+    return cons(_(eval(car(l), a)), _(evlis(cdr(l), a)));
 }
 
 // implementation of evcon
@@ -61,10 +59,7 @@ static expr *evcon(expr *conditions, expr *a)
 // needed to hold gc links
 static expr *eval2_and_call(expr *arg1, expr *arg2, expr *a, expr*(*func)(expr*,expr*))
 {
-    expr *e1 = push_gclink(eval(arg1, a));
-    expr *e2 = eval(arg2, a);
-    pop_gclink();
-    return func(e1, e2);
+    return func(_(eval(arg1, a)), _(eval(arg2, a)));
 }
 
 expr *eval(expr *e, expr *a)
@@ -72,8 +67,9 @@ expr *eval(expr *e, expr *a)
     if (isT(atom(e))) {
         return assoc(e, a);
     }
-    push_gclink(e);
-    push_gclink(a);
+    int ll = cur_eval_gclink;
+    _(e);
+    _(a);
     if (isT(atom(car(e)))) {
         expr *cmd = car(e);
         expr *arg1 = car(cdr(e));
@@ -101,13 +97,10 @@ expr *eval(expr *e, expr *a)
             { e = eval2_and_call(arg1, arg2, a, sub); goto done; }
         // todo re-implement all users in original paper's form of label/lambda
         if (strcasecmp(label, "def") == 0) {
-            expr *name = push_gclink(eval(car(cdr(e)), a));
-            expr *args = push_gclink(eval(car(cdr(cdr(e))), a));
-            expr *func = push_gclink(eval(car(cdr(cdr(cdr(e)))), a));
+            expr *name = _(eval(car(cdr(e)), a));
+            expr *args = _(eval(car(cdr(cdr(e))), a));
+            expr *func = _(eval(car(cdr(cdr(cdr(e)))), a));
             e = def(name, args, func);
-            pop_gclink();
-            pop_gclink();
-            pop_gclink();
             goto done;
         }
         // todo re-implement def in original paper's form of label/lambda
@@ -130,30 +123,22 @@ expr *eval(expr *e, expr *a)
         expr *label = car(cdr(car(e)));
         expr *to_eval = car(cdr(cdr(car(e))));
         expr *args = cdr(e);
-        expr *neweval = push_gclink(cons(to_eval, args));
-        expr *newpair = push_gclink(cons(label, cons(car(e), NIL)));
+        expr *neweval = _(cons(to_eval, args));
+        expr *newpair = _(cons(label, cons(car(e), NIL)));
         e = eval(neweval, cons(newpair, a));
-        pop_gclink();
-        pop_gclink();
         goto done;
     }
     // eval [caddar [e]; append [pair [cadar [e]; evlis [cdr [e]; a]; a]]]
     if (isT(eq(car(car(e)), find_atom("lambda")))) {
-        expr *to_eval = push_gclink(car(cdr(cdr(car(e)))));
-        expr *argslist = push_gclink(car(cdr(car(e))));
-        expr *vallist = push_gclink(evlis(cdr(e), a));
-        expr *lambda_args = push_gclink(pair(argslist, vallist, a));
+        expr *to_eval = _(car(cdr(cdr(car(e)))));
+        expr *argslist = _(car(cdr(car(e))));
+        expr *vallist = _(evlis(cdr(e), a));
+        expr *lambda_args = _(pair(argslist, vallist, a));
         e = eval(to_eval, lambda_args);
-        pop_gclink();
-        pop_gclink();
-        pop_gclink();
-        pop_gclink();
         goto done;
     }
 done:
-    pop_gclink();
-    pop_gclink();
-    return e;
+    return pop_gcstack(ll, e);
 }
 
 // appq[m] = [null[m] → NIL;T → cons[list[QUOTE;car[m]];appq[cdr[m]]]]
@@ -161,21 +146,13 @@ static expr *appq(expr *m)
 {
     if (isNIL(m))
         return NIL;
-    push_gclink(m);
-    expr *rem = appq(cdr(m));
-    push_gclink(rem);
-    expr *q = cons(cons(find_atom("QUOTE"), cons(car(m), NIL)), rem);
-    pop_gclink();
-    pop_gclink();
-    return q;
+    _(m);
+    return cons(cons(find_atom("QUOTE"), _(cons(car(m), NIL))), _(appq(cdr(m))));
 }
 
 // apply[f; args] = eval[cons[f; appq[args]]; NIL],
 expr *apply(expr *f, expr *args)
 {
-    expr *q = appq(args);
-    push_gclink(q);
-    expr *e = eval(cons(f, q), NIL);
-    pop_gclink();
-    return e;
+    expr *q = _(appq(args));
+    return pop_gcstack(0, eval(cons(f, q), NIL));
 }
