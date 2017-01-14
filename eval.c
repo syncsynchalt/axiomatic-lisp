@@ -29,12 +29,18 @@ static expr *assoc(expr *key, expr *keyvals)
     return assoc(key, cdr(keyvals));
 }
 
+// makepair[A; B] = (A, B)
+static expr *makepair(expr *a, expr *b)
+{
+    return cons(a, cons(b, NIL));
+}
+
 // pair[(A, B, C); (X, (Y, Z), U); ...tail...] = ((A, X), (B, (Y, Z)), (C, U), ...tail...)
 static expr *pair(expr *x, expr *y, expr *tail)
 {
     if (isNIL(x))
         return tail;
-    return cons(cons(car(x), cons(car(y), NIL)), pair(cdr(x), cdr(y), tail));
+    return cons(makepair(car(x), car(y)), pair(cdr(x), cdr(y), tail));
 }
 
 // evlis[(T, F, (ADD, 1, 2))] = (T, F, 3)
@@ -45,7 +51,6 @@ static expr *evlis(expr *l, expr *a)
     return cons(_(eval(car(l), a)), _(evlis(cdr(l), a)));
 }
 
-// implementation of evcon
 // evcon[(((EQ, A, B), 1), ((EQ, A, A), 2), ((T), 3))] = 2
 static expr *evcon(expr *conditions, expr *a)
 {
@@ -56,19 +61,15 @@ static expr *evcon(expr *conditions, expr *a)
     return evcon(cdr(conditions), a);
 }
 
-// needed to hold gc links
-static expr *eval2_and_call(expr *arg1, expr *arg2, expr *a, expr*(*func)(expr*,expr*))
+expr *defun(expr *ee, expr *a)
 {
-    return func(_(eval(arg1, a)), _(eval(arg2, a)));
-}
-
-expr *defun(expr *name, expr *args, expr *func)
-{
-    expr *lambda = cons(find_atom("lambda"), cons(args, cons(func, NIL)));
-    expr *label = cons(find_atom("label"), cons(args, cons(lambda, NIL)));
-    expr *pair = cons(name, cons(label, NIL));
-    env = base_registers[6] = cons(pair, env);
-    return cons(find_atom("defun"), cons(name, NIL));
+    expr *name = _(eval(car(ee), a));
+    expr *args = _(eval(car(cdr(ee)), a));
+    expr *func = _(eval(car(cdr(cdr(ee))), a));
+    expr *lambda = cons(find_atom("lambda"), makepair(args, func));
+    expr *label = cons(find_atom("label"), makepair(args, lambda));
+    env = base_registers[6] = cons(makepair(name, label), env);
+    return makepair(find_atom("defun"), name);
 }
 
 expr *eval(expr *e, expr *a)
@@ -77,41 +78,24 @@ expr *eval(expr *e, expr *a)
         return assoc(e, a);
     }
     int ll = cur_eval_gclink;
-    _(e);
-    _(a);
+    _(e); _(a);
     if (isT(atom(car(e)))) {
         expr *cmd = car(e);
         expr *arg1 = car(cdr(e));
         expr *arg2 = car(cdr(cdr(e)));
         const char *label = atom_names[cmd->atom];
-        if (isNIL(cmd))
-            { e = NIL; goto done; }
-        if (strcasecmp(label, "quote") == 0)
-            { e = arg1; goto done; }
-        if (strcasecmp(label, "atom") == 0)
-            { e = atom(eval(arg1, a)); goto done; }
-        if (strcasecmp(label, "eq") == 0)
-            { e = eval2_and_call(arg1, arg2, a, eq); goto done; }
-        if (strcasecmp(label, "cond") == 0)
-            { e = evcon(cdr(e), a); goto done; }
-        if (strcasecmp(label, "car") == 0)
-            { e = car(eval(arg1, a)); goto done; }
-        if (strcasecmp(label, "cdr") == 0)
-            { e = cdr(eval(arg1, a)); goto done; }
-        if (strcasecmp(label, "cons") == 0)
-            { e = eval2_and_call(arg1, arg2, a, cons); goto done; }
-        if (strcasecmp(label, "add") == 0)
-            { e = eval2_and_call(arg1, arg2, a, add); goto done; }
-        if (strcasecmp(label, "sub") == 0)
-            { e = eval2_and_call(arg1, arg2, a, sub); goto done; }
-        if (strcasecmp(label, "defun") == 0) {
-            expr *name = _(eval(car(cdr(e)), a));
-            expr *args = _(eval(car(cdr(cdr(e))), a));
-            expr *func = _(eval(car(cdr(cdr(cdr(e)))), a));
-            e = defun(name, args, func);
-            goto done;
-        }
-        e = eval(cons(assoc(car(e), a), cdr(e)), a);
+        if (isNIL(cmd))                            e = NIL;
+        else if (strcasecmp(label, "quote") == 0)  e = arg1;
+        else if (strcasecmp(label, "atom") == 0)   e = atom(eval(arg1, a));
+        else if (strcasecmp(label, "eq") == 0)     e = eq(_(eval(arg1, a)), _(eval(arg2, a)));
+        else if (strcasecmp(label, "cond") == 0)   e = evcon(cdr(e), a);
+        else if (strcasecmp(label, "car") == 0)    e = car(eval(arg1, a));
+        else if (strcasecmp(label, "cdr") == 0)    e = cdr(eval(arg1, a));
+        else if (strcasecmp(label, "cons") == 0)   e = cons(_(eval(arg1, a)), _(eval(arg2, a)));
+        else if (strcasecmp(label, "add") == 0)    e = add(_(eval(arg1, a)), _(eval(arg2, a)));
+        else if (strcasecmp(label, "sub") == 0)    e = sub(_(eval(arg1, a)), _(eval(arg2, a)));
+        else if (strcasecmp(label, "defun") == 0)  e = defun(cdr(e), a);
+        else                                       e = eval(cons(assoc(car(e), a), cdr(e)), a);
         goto done;
     }
     // eval [cons [caddar [e]; cdr [e]]; cons [list [cadar [e]; car [e]; a]];
@@ -120,7 +104,7 @@ expr *eval(expr *e, expr *a)
         expr *to_eval = car(cdr(cdr(car(e))));
         expr *args = cdr(e);
         expr *neweval = _(cons(to_eval, args));
-        expr *newpair = _(cons(label, cons(car(e), NIL)));
+        expr *newpair = _(makepair(label, car(e)));
         e = eval(neweval, cons(newpair, a));
         goto done;
     }
@@ -142,13 +126,12 @@ static expr *appq(expr *m)
 {
     if (isNIL(m))
         return NIL;
-    _(m);
-    return cons(cons(find_atom("QUOTE"), _(cons(car(m), NIL))), _(appq(cdr(m))));
+    return cons(makepair(find_atom("QUOTE"), car(m)), _(appq(cdr(m))));
 }
 
 // apply[f; args] = eval[cons[f; appq[args]]; NIL],
 expr *apply(expr *f, expr *args)
 {
-    expr *q = _(appq(args));
+    expr *q = _(appq(_(args)));
     return pop_gcstack(0, eval(cons(f, q), env));
 }

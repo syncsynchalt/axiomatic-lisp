@@ -27,24 +27,16 @@ void init_cells()
     T = find_atom("T");
 }
 
-static void mark(expr *e)
+static void mark(expr *e, int m)
 {
-    if (e->atom < MAX_ATOMS)
+    if (m && e->atom < MAX_ATOMS)
         e->atom += MAX_ATOMS;
-    if (!isNIL(car(e)))
-        mark(e->left);
-    if (!isNIL(cdr(e)))
-        mark(e->right);
-}
-
-static void unmark(expr *e)
-{
-    if (e->atom >= MAX_ATOMS)
+    if (!m && e->atom >= MAX_ATOMS)
         e->atom -= MAX_ATOMS;
     if (!isNIL(car(e)))
-        unmark(e->left);
+        mark(car(e), m);
     if (!isNIL(cdr(e)))
-        unmark(e->right);
+        mark(cdr(e), m);
 }
 
 static int sweep()
@@ -67,10 +59,12 @@ static int sweep()
 static void gc() 
 {
     for (size_t i = 0; i < sizeof(base_registers)/sizeof(*base_registers); i++)
-        if (base_registers[i]) mark(base_registers[i]);
+        if (base_registers[i])
+            mark(base_registers[i], 1);
     sweep();
     for (size_t i = 0; i < sizeof(base_registers)/sizeof(*base_registers); i++)
-        if (base_registers[i]) unmark(base_registers[i]);
+        if (base_registers[i])
+            mark(base_registers[i], 0);
 }
 
 expr *get_free_cell()

@@ -33,7 +33,7 @@ expr *parse(FILE *f, int level)
         case ')':
             if (level == 1) {
                 e = apply(car(e), cdr(e));
-                print(e);
+                print(stdout, e);
             }
             goto done;
         case ' ': case '\n': case '\r': case '\t':
@@ -96,14 +96,8 @@ static void parse_print_expr(FILE *f, expr *e, int last_was_atom)
     }
 }
 
-void print(expr *e)
+void print(FILE *f, expr *e)
 {
-    parse_print_expr(stdout, e, 0);
-    fprintf(stdout, "\n");
-}
-
-void dprint(expr *e)
-{
-    parse_print_expr(stderr, e, 0);
-    fprintf(stderr, "\n");
+    parse_print_expr(f, e, 0);
+    fprintf(f, "\n");
 }
