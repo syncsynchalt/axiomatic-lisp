@@ -35,7 +35,7 @@ static expr *makepair(expr *a, expr *b)
     return cons(a, cons(b, NIL));
 }
 
-// pair[(A, B, C); (X, (Y, Z), U); ...tail...] = ((A, X), (B, (Y, Z)), (C, U), ...tail...)
+// pair[(A, B, C); (X, (Y, Z), U); (TAIL)] = ((A, X), (B, (Y, Z)), (C, U), TAIL)
 static expr *pair(expr *x, expr *y, expr *tail)
 {
     if (isNIL(x))
@@ -43,7 +43,7 @@ static expr *pair(expr *x, expr *y, expr *tail)
     return cons(makepair(car(x), car(y)), pair(cdr(x), cdr(y), tail));
 }
 
-// evlis[(T, F, (ADD, 1, 2))] = (T, F, 3)
+// evlis[((QUOTE T), (X), (ADD, 1, 2))] = (T, NIL, 3)
 static expr *evlis(expr *l, expr *a)
 {
     if (isNIL(l))

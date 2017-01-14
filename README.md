@@ -20,12 +20,18 @@ The following to build math capabilities:
 
 The following intermediate functions made from the above axioms:
 
-* QUOTE: quote (car (a)) -> car (a) [ie. not executed]
-* ASSOC
-* PAIR
-* EVAL
+* QUOTE: (quote (car (a))) -> (car (a)) [ie. not executed]
 
-And, the ability to define functions:
+The following (non-executable) intermediates from the McCarthy paper:
+
+* ASSOC: `[X; ((W, (A, B)), (X, (C, D)), (Y, (E, F)))] => (C, D)`
+* PAIR: `[(A, B, C); (X, (Y, Z), U); (TAIL)] => ((A, X), (B, (Y, Z)), (C, U), TAIL)`
+   * the "tail" addition removes the need for "append" in the kernel
+* EVLIS: `[((QUOTE T), (X), (ADD, 1, 2))] => (T, NIL, 3)`
+* EVCON: `[(((EQ, A, B), 1), ((EQ, A, A), 2), ((T), 3))] => 2`
+* EVAL, APPLY, APPQ: see paper
+
+And, the ability to define functions (puts a label/lambda in global environment):
 
 * DEFUN: defun (x, y, ...) (S-Expression using x, y, ...)
 
