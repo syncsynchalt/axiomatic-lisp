@@ -4,9 +4,8 @@
 expr *atom(expr *e)
 {
     if (e->atom)
-        return find_atom("T");
-    else
-        return find_atom("F");
+        return T;
+    return NIL;
 }
 
 expr *car(expr *e)
@@ -31,12 +30,9 @@ expr *cons(expr *a, expr *b)
 
 expr *eq(expr *a, expr *b)
 {
-    if (!a->atom || !b->atom)
-        return NIL;
-    if (a->atom == b->atom && (a->numval == b->numval))
-        return find_atom("T");
-    else
-        return find_atom("F");
+    if (a->atom && a->atom == b->atom && (a->numval == b->numval))
+        return T;
+    return NIL;
 }
 
 expr *add(expr *a, expr *b)
