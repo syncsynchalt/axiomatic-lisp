@@ -1,6 +1,7 @@
 # axiomatic-lisp
 
-Implementing LISP from [the original McCarthy paper]
+Inspired by [this article by Eric Normand](https://dev.to/ericnormand/the-idea-of-lisp),
+an implementation of LISP from [the original McCarthy paper]
 (https://www.brinckerhoff.org/clements/csc530-sp09/Readings/mccarthy-1960.pdf).
 
 The goal is to implement a working LISP with the fewest lines of C.
