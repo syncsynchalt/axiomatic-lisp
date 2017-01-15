@@ -9,7 +9,6 @@ extern expr *cons(expr *a, expr *b);
 extern expr *eq(expr *a, expr *b);
 
 // from me
-extern expr *add(expr *a, expr *b);
-extern expr *sub(expr *a, expr *b);
+extern expr *add(expr *a, expr *b, int subtract);
 
 #endif

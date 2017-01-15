@@ -3,7 +3,7 @@
 
 typedef struct _expr expr;
 extern void init_cells();
-extern expr *get_free_cell();
+extern expr *get_free_cell(expr *left, expr *right);
 extern expr *find_atom(const char *label);
 
 extern expr *arena;

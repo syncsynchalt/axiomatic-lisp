@@ -66,13 +66,14 @@ static void gc()
             mark(base_registers[i], 0);
 }
 
-expr *get_free_cell()
+expr *get_free_cell(expr *l, expr *r)
 {
     if (isNIL(freelist))
         gc();
     expr *e = freelist;
     freelist = freelist->right;
-    e->left = e->right = NIL;
+    e->left = l;
+    e->right = r;
     e->atom = e->numval = 0;
     return e;
 }
@@ -80,7 +81,7 @@ expr *get_free_cell()
 expr *find_atom(const char *label)
 {
     if (label[strspn(label, "0123456789")] == '\0') {
-        expr *e = get_free_cell();
+        expr *e = get_free_cell(NIL, NIL);
         e->atom = ATOM_NUMERIC;
         e->numval = atoi(label);
         return e;
@@ -97,7 +98,7 @@ expr *find_atom(const char *label)
     atom_names[i] = strdup(label);
     for (int ii = 0; atom_names[i][ii]; ii++)
         atom_names[i][ii] = toupper(atom_names[i][ii]);
-    atom_exprs[i] = get_free_cell();
+    atom_exprs[i] = get_free_cell(NIL, NIL);
     atom_exprs[i]->atom = i;
     return atom_exprs[i];
 }

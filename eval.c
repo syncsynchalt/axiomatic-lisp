@@ -4,6 +4,7 @@
 
 expr **eval_gclinks = base_registers + EVALS_OFFSET;
 static int cur_eval_gclink = 0;
+static expr *eval(expr *e, expr *a);
 
 // push onto GC stack
 expr *_(expr *e)
@@ -63,7 +64,7 @@ static expr *evcon(expr *conditions, expr *a)
     return evcon(cdr(conditions), a);
 }
 
-expr *defun(expr *ee, expr *a)
+static expr *defun(expr *ee, expr *a)
 {
     expr *name = _(eval(car(ee), a));
     expr *args = _(eval(car(cdr(ee)), a));
@@ -74,11 +75,10 @@ expr *defun(expr *ee, expr *a)
     return makepair(find_atom("defun"), name);
 }
 
-expr *eval(expr *e, expr *a)
+static expr *eval(expr *e, expr *a)
 {
-    if (isT(atom(e))) {
+    if (isT(atom(e)))
         return assoc(e, a);
-    }
     int ll = cur_eval_gclink;
     _(e); _(a);
     if (isT(atom(car(e)))) {
@@ -94,8 +94,8 @@ expr *eval(expr *e, expr *a)
         else if (strcasecmp(label, "car") == 0)    e = car(eval(arg1, a));
         else if (strcasecmp(label, "cdr") == 0)    e = cdr(eval(arg1, a));
         else if (strcasecmp(label, "cons") == 0)   e = cons(_(eval(arg1, a)), _(eval(arg2, a)));
-        else if (strcasecmp(label, "add") == 0)    e = add(_(eval(arg1, a)), _(eval(arg2, a)));
-        else if (strcasecmp(label, "sub") == 0)    e = sub(_(eval(arg1, a)), _(eval(arg2, a)));
+        else if (strcasecmp(label, "add") == 0)    e = add(_(eval(arg1, a)), _(eval(arg2, a)), 0);
+        else if (strcasecmp(label, "sub") == 0)    e = add(_(eval(arg1, a)), _(eval(arg2, a)), 1);
         else if (strcasecmp(label, "defun") == 0)  e = defun(cdr(e), a);
         else                                       e = eval(cons(assoc(car(e), a), cdr(e)), a);
         goto done;
