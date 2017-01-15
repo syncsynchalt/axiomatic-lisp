@@ -4,7 +4,7 @@ Inspired by [this article by Eric Normand](https://dev.to/ericnormand/the-idea-o
 an implementation of LISP from [the original McCarthy paper]
 (https://www.brinckerhoff.org/clements/csc530-sp09/Readings/mccarthy-1960.pdf).
 
-The goal is to implement a working LISP with the fewest lines of C.
+The goal is to implement a working LISP with very few lines of C.
 
 S-Expressions are implemented, with the following "axioms" from the McCarthy paper:
 
@@ -23,7 +23,7 @@ The following intermediate functions made from the above axioms:
 
 * QUOTE: (quote (car (a))) -> (car (a)) [ie. not executed]
 
-The following (non-executable) intermediates from the McCarthy paper:
+The following (non-user-executable) intermediates from the McCarthy paper:
 
 * ASSOC: `[X; ((W, (A, B)), (X, (C, D)), (Y, (E, F)))] => (C, D)`
 * PAIR: `[(A, B, C); (X, (Y, Z), U); (TAIL)] => ((A, X), (B, (Y, Z)), (C, U), TAIL)`
