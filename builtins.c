@@ -1,5 +1,4 @@
 #include "axiom.h"
-#include <stdlib.h>
 
 expr *atom(expr *e)
 {

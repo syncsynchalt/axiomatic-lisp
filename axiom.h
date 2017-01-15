@@ -32,8 +32,9 @@ extern expr *T;
 extern expr *env;
 
 #include <stdio.h>
+#include <stdlib.h>
 #define die(...) do { fprintf (stderr, __VA_ARGS__); exit(1); } while (0)
-#define deb(e, f, ...) do { fprintf (stderr, f ": ", ##__VA_ARGS__); print(stderr, e); } while (0)
+#define deb(e) do { fprintf (stderr, #e ": "); print(stderr, (e)); } while (0)
 
 #include "builtins.h"
 #include "eval.h"

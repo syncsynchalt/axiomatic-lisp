@@ -1,7 +1,6 @@
 #include "axiom.h"
 #include <string.h>
 #include <errno.h>
-#include <stdlib.h>
 
 int main(int argc, char **argv)
 {

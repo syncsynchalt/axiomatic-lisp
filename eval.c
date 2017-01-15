@@ -8,6 +8,8 @@ static int cur_eval_gclink = 0;
 // push onto GC stack
 expr *_(expr *e)
 {
+    if (cur_eval_gclink+1 >= MAX_EVAL)
+        die("More than %d eval gclinks", MAX_EVAL);
     return eval_gclinks[cur_eval_gclink++] = e;
 }
 

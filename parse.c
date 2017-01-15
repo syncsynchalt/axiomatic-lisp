@@ -1,6 +1,5 @@
 #include "axiom.h"
 #include <ctype.h>
-#include <stdlib.h>
 
 static expr *parse_read_atom(FILE *f);
 expr **parse_chain = base_registers + PARSE_OFFSET;
